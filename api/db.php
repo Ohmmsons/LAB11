@@ -5,10 +5,16 @@ $db_name = "db_a71254";
 $db_user = "a71254";
 $db_passwd = "53420a";
 
+// Turn off all error reporting
+error_reporting(0);
+mysqli_report(MYSQLI_REPORT_OFF);
+
+
 // mostra uma mensagem de erro vinda do mysql
 function showerror($db)
 {
     // allow cross-origin requests (CORS)
+	header($_SERVER["SERVER_PROTOCOL"] . " 400 Bad Request");
 	header('Access-Control-Allow-Origin: *');
 	header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 	header("Access-Control-Allow-Headers: Authorization, Origin, User-Token, X-Requested-With, Content-Type");
@@ -22,9 +28,10 @@ function dbconnect($hostname, $db_name,$db_user,$db_passwd)
   $db = @ mysqli_connect($hostname, $db_user, $db_passwd, $db_name);
   if(!$db) {
     // allow cross-origin requests (CORS)
+	header($_SERVER["SERVER_PROTOCOL"] . " 401 Unauthorized");
 	header('Access-Control-Allow-Origin: *');
 	header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
-	header("Access-Control-Allow-Headers: Authorization, Origin, User-Token, X-Requested-With, Content-Type");	
+	header("Access-Control-Allow-Headers: Authorization, Origin, User-Token, X-Requested-With, Content-Type");
     die('{"Connection_failed" : "' . mysqli_connect_error() . '"}');
   }
 

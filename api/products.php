@@ -1,19 +1,23 @@
 <?php
 
 include 'db.php';
+$hostname = "localhost";
+$db_name = "db_a71254";
+$db_user = "a71254";
+$db_passwd = "53420a";
 
-if($_SERVER['REQUEST_METHOD'] == 'GET') {    
+if($_SERVER['REQUEST_METHOD'] == 'GET') {
     // ligaçã base de dados
     $db = dbconnect($hostname,$db_name,$db_user,$db_passwd);
     if($db) {
 
         // criar query numa string
         $query  = "SELECT  c.name as cat_id, p.id, p.name, p.description, p.price, p.image, p.visible FROM products as p inner join categories as c on (p.cat_id = c.id)";
-    
+
         // executar a query
         if(!($result = @ mysqli_query($db, $query)))
             showerror($db);
-        
+
         // vai buscar o resultado da query
 
         $nrows  = mysqli_num_rows($result);
@@ -21,7 +25,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET') {
         for($i=0; $i<$nrows; $i++)
             $products[$i] = mysqli_fetch_assoc($result);
 
-        
+
         // allow cross-origin requests (CORS)
         header('Access-Control-Allow-Origin: *');
         header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
@@ -32,7 +36,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET') {
 
         // fechar a ligaçãbase de dados
         mysqli_close($db);
-       
+
     } // end if
 }
 
@@ -40,8 +44,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET') {
 if($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 	header('Access-Control-Allow-Origin: *');
 	header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
-	header("Access-Control-Allow-Headers: Authorization, Origin, User-Token, X-Requested-With, Content-Type");	
+	header("Access-Control-Allow-Headers: Authorization, Origin, User-Token, X-Requested-With, Content-Type");
 }
 
 ?>
-

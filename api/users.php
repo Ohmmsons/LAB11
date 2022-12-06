@@ -7,6 +7,10 @@ if(isset($_GET['session_id'])) {
     $session_id = $_GET['session_id'];
     session_id($session_id);
 }
+$hostname = "localhost";
+$db_name = "db_a71254";
+$db_user = "a71254";
+$db_passwd = "53420a";
 
 session_start();
 
@@ -24,15 +28,15 @@ if($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['email']) && !isset($_GET[
 					showerror($db);
 			// vai buscar o resultado da query
 			$user = mysqli_fetch_assoc($result);
-		
+
 			// allow cross-origin requests (CORS)
 			header('Access-Control-Allow-Origin: *');
 			header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 			header("Access-Control-Allow-Headers: Authorization, Origin, User-Token, X-Requested-With, Content-Type");
 			// convert to JSON
 			$json = json_encode($user);
-			echo $json; 
-		
+			echo $json;
+
 
 		// fechar a ligaçãbase de dados
 		mysqli_close($db);
@@ -61,7 +65,7 @@ if($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['email']) && isset($_GET['
 
 		$user = mysqli_fetch_assoc($result);
 
-		if (mysqli_num_rows($result) == 0) 
+		if (mysqli_num_rows($result) == 0)
 			//login failed
 			unset($_SESSION['user_id']);
 		else {
@@ -73,16 +77,16 @@ if($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['email']) && isset($_GET['
 
 		// fechar a ligaço base de dados
 		mysqli_close($db);
-		
+
 		$json=json_encode($user);
 
 		// allow cross-origin requests (CORS)
 		header('Access-Control-Allow-Origin: *');
 		header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
 		header("Access-Control-Allow-Headers: Authorization, Origin, User-Token, X-Requested-With, Content-Type");
-		
-		echo $json;	
-	
+
+		echo $json;
+
 	} // end if
 
 }
@@ -94,47 +98,55 @@ if($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['email']) && isset($_GET['
 if($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $json=file_get_contents('php://input');
+    $data = json_decode($json, true);
 
-    $data = json_decode($json, true);    
+	if (isset($data['name']) && isset($data['email']) && isset($data['password'])) {
 
-	// ligacao base de dados
-	$db = dbconnect($hostname,$db_name,$db_user,$db_passwd);
+		// ligacao base de dados
+		$db = dbconnect($hostname,$db_name,$db_user,$db_passwd);
 
-	$name = mysqli_real_escape_string($db, trim($data['name']));
-	$email = mysqli_real_escape_string($db, trim($data['email']));
-	$password = substr(md5($data['password']),0,32);
+		$name = mysqli_real_escape_string($db, trim($data['name']));
+		$email = mysqli_real_escape_string($db, trim($data['email']));
+		$password = substr(md5($data['password']),0,32);
 
 
-	if($db) {
-		// criar query numa string
-		$query  = "INSERT INTO users SET name='$name',email='$email',password_digest='$password',created_at=NOW(),updated_at=NOW()";
-	
-		// executar a query
-		if(!($result = @ mysqli_query($db, $query)))
-			showerror($db);
+		if($db) {
+			// criar query numa string
+			$query  = "INSERT INTO users SET name='$name',email='$email',password_digest='$password',created_at=NOW(),updated_at=NOW()";
 
-		// criar query numa string
-		$query  = "SELECT id, name, email FROM users order by id desc limit 1";
-
-		// executar a query
-		if(!($result = @ mysqli_query($db, $query)))
+			// executar a query
+			if(!($result = @ mysqli_query($db, $query)))
 				showerror($db);
 
-		$user = mysqli_fetch_assoc($result);
+			// criar query numa string
+			$query  = "SELECT id, name, email FROM users order by id desc limit 1";
 
-		// fechar a ligaço base de dados
-		mysqli_close($db);
-		
-		$json=json_encode($user);
+			// executar a query
+			if(!($result = @ mysqli_query($db, $query)))
+					showerror($db);
 
-		// allow cross-origin requests (CORS)
-		header('Access-Control-Allow-Origin: *');
-		header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
-		header("Access-Control-Allow-Headers: Authorization, Origin, User-Token, X-Requested-With, Content-Type");
-		echo $json;	
-	
-	} // end if
+			$user = mysqli_fetch_assoc($result);
 
+			// fechar a ligaço base de dados
+			mysqli_close($db);
+
+			$json=json_encode($user);
+
+			// allow cross-origin requests (CORS)
+			header('Access-Control-Allow-Origin: *');
+			header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
+			header("Access-Control-Allow-Headers: Authorization, Origin, User-Token, X-Requested-With, Content-Type");
+			echo $json;
+
+		} // end if
+	}
+	else {
+		header($_SERVER["SERVER_PROTOCOL"] . " 400 Bad Request");
+        header('Access-Control-Allow-Origin: *');
+        header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
+        header("Access-Control-Allow-Headers: Authorization, Origin, User-Token, X-Requested-With, Content-Type");
+        die('{"Error":"missing one or more properties \'name\' or \'email\' or \'password\' in data object"}');
+	}
 }
 
 // DESTROY SESSION
