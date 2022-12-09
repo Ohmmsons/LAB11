@@ -77,7 +77,7 @@ export default {
       this.getTotalQuantity();
     },
     async placeOrder() {
-      let data =  {status_id: 1,username: this.user.name, totalPrice: this.totalPrice, totalQuantity: this.totalQuantity, items: this.products};
+      let data =  {status_id: 1, totalAmount: this.totalPrice, items: this.products};
       if (await this.$store.dispatch('orders/addOrder', data)) {
         this.clearBasket()
         await this.$router.push('/message/3')
